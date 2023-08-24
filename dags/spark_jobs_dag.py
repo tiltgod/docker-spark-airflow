@@ -1,7 +1,7 @@
 import airflow
 from datetime import timedelta
 from airflow import DAG
-from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator 
+# from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator 
 from airflow.utils.dates import days_ago
 
 default_args = {
@@ -18,11 +18,11 @@ spark_dag = DAG(
         start_date = airflow.utils.dates.days_ago(1)
 )
 
-Extract = SparkSubmitOperator(
-		application = "/opt/airflow/dags/spark_etl_script_docker.py",
-		conn_id= 'spark_local', 
-		task_id='spark_submit_task', 
-		dag=spark_dag
-		)
+# Extract = SparkSubmitOperator(
+# 		application = "/opt/airflow/dags/spark_etl_script_docker.py",
+# 		conn_id= 'spark_local', 
+# 		task_id='spark_submit_task', 
+# 		dag=spark_dag
+# 		)
 
-Extract
+# Extract

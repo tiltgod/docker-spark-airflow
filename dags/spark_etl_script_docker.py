@@ -3,10 +3,10 @@ import json
 from pyspark.sql import SparkSession
 from pyspark import SQLContext
 from pyspark.sql import functions as F
-from decouple import config
+#from decouple import config
 
-aws_access_key = config('AWS_ACCESS_KEY')
-aws_secret_key = config('AWS_SECRET_KEY')
+# aws_access_key = config('AWS_ACCESS_KEY')
+# aws_secret_key = config('AWS_SECRET_KEY')
 
 spark = SparkSession \
     .builder \
