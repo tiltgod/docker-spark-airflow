@@ -9,120 +9,75 @@ from __future__ import annotations
 # [START import_module]
 from datetime import datetime, timedelta
 from textwrap import dedent
+import json
+import os
 
 # The DAG object; we'll need this to instantiate a DAG
-from airflow import DAG
+from airflow import DAG, settings
+from airflow.models import Connection
 
 # Operators; we need this to operate!
 from airflow.operators.bash import BashOperator
-
-from docker.types import Mount
-from airflow.operators.docker_operator import DockerOperator
-
+from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
 # [END import_module]
 
+def add_gcp_connection(**kwargs):
+    new_conn = Connection(
+            conn_id="google_cloud_default",
+            conn_type='google_cloud_platform',
+    )
+    extra_field = {
+        "extra__google_cloud_platform__scope": "https://www.googleapis.com/auth/cloud-platform",
+        "extra__google_cloud_platform__project": "DataTempestHomework",
+        "extra__google_cloud_platform__key_path": "/opt/airflow/dags/serviceaccount/datatempesthomework-7ab4cddb5cb8.json"
+    }
+
+    session = settings.Session()
+
+    #checking if connection exist
+    if session.query(Connection).filter(Connection.conn_id == new_conn.conn_id).first():
+        my_connection = session.query(Connection).filter(Connection.conn_id == new_conn.conn_id).one()
+        my_connection.set_extra(json.dumps(extra_field))
+        session.add(my_connection)
+        session.commit()
+    else: #if it doesn't exit create one
+        new_conn.set_extra(json.dumps(extra_field))
+        session.add(new_conn)
+        session.commit()
 
 # [START instantiate_dag]
 with DAG(
-    
+
     dag_id = "sun_dag",
     # [START default_args]
-    # These args will get passed on to each operator
-    # You can override them on a per-task basis during operator initialization
-    default_args={
-        "depends_on_past": False,
-        "email": ["airflow@example.com"],
-        "email_on_failure": False,
-        "email_on_retry": False,
-        "retries": 1,
-        "retry_delay": timedelta(minutes=5),
-        # 'queue': 'bash_queue',
-        # 'pool': 'backfill',
-        # 'priority_weight': 10,
-        # 'end_date': datetime(2016, 1, 1),
-        # 'wait_for_downstream': False,
-        # 'sla': timedelta(hours=2),
-        # 'execution_timeout': timedelta(seconds=300),
-        # 'on_failure_callback': some_function, # or list of functions
-        # 'on_success_callback': some_other_function, # or list of functions
-        # 'on_retry_callback': another_function, # or list of functions
-        # 'sla_miss_callback': yet_another_function, # or list of functions
-        # 'trigger_rule': 'all_success'
+    default_args={"owner": "airflow",
+    "depends_on_past": False,
+    "start_date": datetime(2020, 5, 9),
+    "email": ["airflow@airflow.com"],
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "retries": 3,
+    "retry_delay": timedelta(minutes=5)
     },
     # [END default_args]
-    description="A simple tutorial DAG",
-    schedule=timedelta(days=1),
-    start_date=datetime(2021, 1, 1),
-    catchup=False,
-    tags=["example"],
+
 ) as dag:
     # [END instantiate_dag]
 
-    # # [mounting]
-    # t_docker = DockerOperator(
-    #     task_id='t_docker',
-    #     image='customimage:latest',
-    #     container_name='docker-spark-airflow_airflow-worker_1',
-    #     api_version='auto',
-    #     auto_remove=True,
-    #     mounts=[
-    #         Mount(source="/home/s/docker-spark-airflow/data_source", target="/opt/airflow/data_source", type="bind"),
-            
-    #     ],
-    #     docker_url="unix://var/run/docker.sock",
-    #     network_mode='bridge',
-    #     dag=dag
-    # )
+    activateGCP = PythonOperator(
+        task_id='add_gcp_connection_python',
+        python_callable=add_gcp_connection,
+        provide_context=True,
+    )
 
-    # # t1, t2 and t3 are examples of tasks created by instantiating operators
-    # # [START basic_task]
-    # t1 = BashOperator(
-    #     task_id="print_date",
-    #     bash_command="date",
-    # )
+    upload_file = LocalFilesystemToGCSOperator(
+        task_id="upload_file",
+        src="/opt/airflow/data_source/inpatient_charges_2012.csv",
+        dst="inpatient_charges_2012.csv",
+        bucket="homeworkbuckett",
+    )
 
-    # t2 = BashOperator(
-    #     task_id="sleep",
-    #     depends_on_past=False,
-    #     bash_command="sleep 5",
-    #     retries=3,
-    # )
-    # # [END basic_task]
-
-    # # [START documentation]
-    # t1.doc_md = dedent(
-    #     """\
-    # #### Task Documentation
-    # You can document your task using the attributes `doc_md` (markdown),
-    # `doc` (plain text), `doc_rst`, `doc_json`, `doc_yaml` which gets
-    # rendered in the UI's Task Instance Details page.
-    # ![img](http://montcs.bloomu.edu/~bobmon/Semesters/2012-01/491/import%20soul.png)
-    # **Image Credit:** Randall Munroe, [XKCD](https://xkcd.com/license.html)
-    # """
-    # )
-
-    # dag.doc_md = __doc__  # providing that you have a docstring at the beginning of the DAG; OR
-    # dag.doc_md = """
-    # This is a documentation placed anywhere
-    # """  # otherwise, type it like this
-    # # [END documentation]
-
-    # # [START jinja_template]
-    # templated_command = dedent(
-    #     """
-    # {% for i in range(5) %}
-    #     echo "{{ ds }}"
-    #     echo "{{ macros.ds_add(ds, 7)}}"
-    # {% endfor %}
-    # """
-    # )
-
-    # t3 = BashOperator(
-    #     task_id="templated",
-    #     depends_on_past=False,
-    #     bash_command=templated_command,
-    # )
-    # # [END jinja_template]
-
-    t_docker
+    activateGCP >> upload_file
+    # activateGCP > upload_file
 # [END tutorial]
