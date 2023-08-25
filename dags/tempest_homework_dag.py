@@ -56,6 +56,5 @@ with DAG(
         bucket="homeworkbuckett",
     )
 
-    activateGCP
-    # activateGCP > upload_file
+    activateGCP > upload_file
 # [END tutorial]
