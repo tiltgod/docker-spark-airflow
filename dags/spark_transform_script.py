@@ -5,6 +5,9 @@ from functools import reduce
 
 spark = SparkSession.builder.appName('ConcatDFGCS').getOrCreate()
 
+textFile = spark.read.text("/home/s/docker-spark-airflow/data_source/20232908example1.csv")
+textFile.first()
+
 
 # get files lst from bucket
 # path_to_private_key = '/'

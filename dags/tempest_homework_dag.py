@@ -4,6 +4,7 @@ from airflow import DAG
 from tempest_homework_dag_config import default_config
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
+from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator 
 from create_gcp_connection import create_gcp_connection
 import file_utils as fu
 
@@ -40,5 +41,14 @@ with DAG(
         dst="",
         bucket="homeworkbuckett",
     )
+
+    # sparkoperator
+
+    test_spark = SparkSubmitOperator(
+		application = "/opt/airflow/dags/spark_etl_script_docker.py",
+		conn_id= 'spark_local', 
+		task_id='spark_submit_task', 
+		dag=spark_dag
+		)
 
     activateGCP >> add_date_to_files >> [upload_file]
