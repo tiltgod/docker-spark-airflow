@@ -4,7 +4,7 @@ from airflow import DAG
 from tempest_homework_dag_config import default_config
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
-from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator 
+from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from create_gcp_connection import create_gcp_connection
 import file_utils as fu
 
