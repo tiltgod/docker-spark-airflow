@@ -1,12 +1,30 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, Row
 from google.cloud import storage
 from pyspark.sql import DataFrame
 from functools import reduce
 
-spark = SparkSession.builder.appName('ConcatDFGCS').getOrCreate()
+spark = SparkSession.builder.appName('test').getOrCreate()
 
-textFile = spark.read.text("/home/s/docker-spark-airflow/data_source/20232908example1.csv")
-textFile.first()
+dept = [("Finance",10), 
+        ("Marketing",20), 
+        ("Sales",30), 
+        ("IT",40) 
+      ]
+
+deptColumns = ["dept_name","dept_id"]
+deptDF = spark.createDataFrame(data=dept, schema = deptColumns)
+deptDF.printSchema()
+deptDF.show(truncate=False)
+
+deptSchema = StructType([       
+    StructField('firstname', StringType(), True),
+    StructField('middlename', StringType(), True),
+    StructField('lastname', StringType(), True)
+])
+
+deptDF1 = spark.createDataFrame(data=dept, schema = deptSchema)
+deptDF1.printSchema()
+deptDF1.show(truncate=False)
 
 
 # get files lst from bucket
