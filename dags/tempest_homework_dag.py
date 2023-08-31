@@ -46,8 +46,9 @@ with DAG(
 
     test_spark = SparkSubmitOperator(
 		application = "/opt/airflow/dags/spark_etl_script_docker.py",
-		conn_id= 'spark_local', 
+		conn_id= 'spark', 
 		task_id='spark_submit_task',
+
 		)
 
     activateGCP >> add_date_to_files >> [upload_file]
