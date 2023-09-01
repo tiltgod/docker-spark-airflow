@@ -1,4 +1,4 @@
-FROM apache/airflow:2.7.0-python3.8
+    FROM apache/airflow:2.7.0-python3.8
 USER root
 
 # Install OpenJDK-11
@@ -15,5 +15,6 @@ USER airflow
 
 COPY ./requirements.txt /
 RUN pip install -r /requirements.txt
+
 
 COPY --chown=airflow:root ./dags /opt/airflow/dags

@@ -7,4 +7,4 @@ class GCPConnectionSettings:
     conn_type: str
     scope: str
     project: str
-    keypath: str
+    key_path: str

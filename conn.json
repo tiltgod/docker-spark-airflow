@@ -1,0 +1,22 @@
+[
+    {
+        "conn_id": "int_gcp_connection",
+        "conn_type": "google_cloud_platform",
+        "scope": 
+                [
+                    "https://www.googleapis.com/auth/pubsub", 
+                    "https://www.googleapis.com/auth/bigquery", 
+                    "https://www.googleapis.com/auth/devstorage.read_write", 
+                    "https://www.googleapis.com/auth/logging.write", 
+                    "https://www.googleapis.com/auth/cloud-platform"
+                ],
+        "project": "our-velocity-397404",
+        "key_path": "/opt/airflow/credentials/mfec_gcp_sa.json"
+    }
+,
+    {
+        "source_path": "/opt/airflow/tmp/",
+        "destination_path": "bronze/",
+        "bucket_name": "init_store"
+    }
+]

@@ -17,11 +17,11 @@ default_config = DefaultSampleDag(
         conn_type = connection_config["conn_type"],
         scope = connection_config["scope"],
         project = connection_config["project"],
-        keypath = connection_config["keypath"]
+        key_path = connection_config["key_path"]
     ),
     to_gcs_setting = ToGCSSetting(
-        src_name = upload_config["src_name"],
-        dir_name = upload_config["dir_name"],
+        source_path = upload_config["source_path"],
+        destination_path = upload_config["destination_path"],
         bucket_name = upload_config["bucket_name"]
     )
 )

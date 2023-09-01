@@ -19,8 +19,10 @@ from add_date_to_destination_path import add_date_to_destination_path
 
 gcp_connection_config = default_config.gcp_connection_setting
 upload_config = default_config.to_gcs_setting
-src_file_path = upload_config.dir_name + upload_config.src_name
-destination_path = add_date_to_destination_path(src_file_path)
+src_file_name = "electricity_access_percent.csv"
+src_file_path = upload_config.source_path + src_file_name
+destination_path = upload_config.destination_path + add_date_to_destination_path(src_file_name)
+bucket = upload_config.bucket_name
 
 # [START instantiate_dag]
 with DAG(
@@ -48,13 +50,15 @@ with DAG(
         python_callable=create_gcp_connection,
         op_kwargs={'gcp_connection_config': gcp_connection_config},
     )
-
+    
+    # https://airflow.apache.org/docs/apache-airflow-providers-google/2.1.0/_api/airflow/providers/google/cloud/transfers/local_to_gcs/index.html
     upload_file = LocalFilesystemToGCSOperator(
         task_id="upload_file",
         src=src_file_path,
         dst=destination_path,
-        bucket="homeworkbuckett",
+        bucket=bucket,
+        gcp_conn_id ="int_gcp_connection"
     )
 
-    activateGCP > upload_file
+    activateGCP >> upload_file
 # [END tutorial]

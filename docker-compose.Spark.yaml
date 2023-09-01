@@ -2,7 +2,10 @@ version: '2'
 
 services:
   spark:
-    image: spark-air:latest
+    # image: spark-air:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.Spark
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
@@ -11,10 +14,19 @@ services:
       - SPARK_SSL_ENABLED=no
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+    volumes:
+      - ./dags:/opt/bitnami/dags
+      - ./result:/opt/bitnami/result
     ports:
       - '8090:8080'
+    # networks:
+    #   - master_node
+
   spark-worker:
-    image: spark-air:latest
+    # image: spark-air:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.Spark
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark:7077
@@ -26,3 +38,13 @@ services:
       - SPARK_SSL_ENABLED=no
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+#     networks:
+#       - master_node
+#       - worker_node
+
+# networks:
+#   worker_node:
+#   master_node:
+#     external: true
+
+
