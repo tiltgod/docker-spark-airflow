@@ -7,10 +7,20 @@ from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesyste
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from create_gcp_connection import create_gcp_connection
 import file_utils as fu
+import json
 
 gcp_connection_config = default_config.gcp_connection_setting
 upload_config = default_config.to_gcs_setting
 files_config = upload_config.dir_name
+gcp_bucket = upload_config.bucket_name
+gcp_credential_path = gcp_connection_config.keypath
+
+with open(gcp_credential_path) as json_file:
+    data = json.load(json_file)
+    gcp_credential = str(data)
+
+spark_args = [gcp_bucket, gcp_credential]
+
 
 with DAG(
     dag_id = "tempest_homework_dag",
@@ -44,10 +54,11 @@ with DAG(
 
     # sparkoperator
 
-    test_spark = SparkSubmitOperator(
+    spark_transform = SparkSubmitOperator(
 		application = "/opt/airflow/dags/spark_transform_script.py",
 		conn_id= 'spark', 
 		task_id='spark_submit_task',
+        application_args=spark_args
 		)
 
-    test_spark
+    spark_transform

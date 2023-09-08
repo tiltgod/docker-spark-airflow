@@ -2,3 +2,4 @@ lxml
 python-decouple
 requests
 pandas
+google-cloud-storage
