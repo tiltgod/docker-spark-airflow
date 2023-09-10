@@ -7,4 +7,5 @@ class GCPConnectionSettings:
     conn_type: str
     scope: str
     project: str
-    keypath: str
+    bucket_keypath: str
+    bq_keypath: str
