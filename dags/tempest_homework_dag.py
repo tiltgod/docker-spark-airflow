@@ -9,6 +9,7 @@ from create_gcp_connection import create_gcp_connection
 import file_utils as fu
 import json
 
+# global variables
 gcp_connection_config = default_config.gcp_connection_setting
 upload_config = default_config.to_gcs_setting
 files_config = upload_config.dir_name
@@ -16,6 +17,7 @@ gcp_bucket_name = upload_config.bucket_name
 gcp_bucket_credential_path = gcp_connection_config.bucket_keypath
 gcp_bq_credential_path = gcp_connection_config.bq_keypath
 
+# read credential to pass into spark application
 with open(gcp_bucket_credential_path) as json_file:
     data = json.load(json_file)
     gcp_bucket_credential = str(data)
@@ -36,28 +38,24 @@ with DAG(
     
 ) as dag:
 
-    # PythonOperator - create schema file yaml that has the list of file names of data_sorce's dir
+    activateGCP = PythonOperator(
+        task_id='add_gcp_connection_python',
+        python_callable=create_gcp_connection,
+        op_kwargs={'gcp_connection_config': gcp_connection_config},
+    )
 
-    # activateGCP = PythonOperator(
-    #     task_id='add_gcp_connection_python',
-    #     python_callable=create_gcp_connection,
-    #     op_kwargs={'gcp_connection_config': gcp_connection_config},
-    # )
+    add_date_to_files = PythonOperator(
+        task_id='add_date_to_files',
+        python_callable=fu.add_date_to_files,
+        op_kwargs={'source_path':files_config}
+    )
 
-    # add_date_to_files = PythonOperator(
-    #     task_id='add_date_to_files',
-    #     python_callable=fu.add_date_to_files,
-    #     op_kwargs={'source_path':files_config}
-    # )
-
-    # upload_file = LocalFilesystemToGCSOperator(
-    #     task_id="upload_file",
-    #     src=upload_config.dir_name + "/*",
-    #     dst="",
-    #     bucket="homeworkbuckett",
-    # )
-
-    # sparkoperator
+    upload_file = LocalFilesystemToGCSOperator(
+        task_id="upload_file",
+        src=upload_config.dir_name + "/*",
+        dst="",
+        bucket="homeworkbuckett",
+    )
 
     spark_transform = SparkSubmitOperator(
 		application = "/opt/airflow/dags/spark_transform_script.py",
@@ -66,4 +64,5 @@ with DAG(
         application_args=spark_args
 	)
 
-    spark_transform
+    # task dependencies
+    activateGCP >> [add_date_to_files, upload_file] >> [spark_transform]
