@@ -12,7 +12,7 @@ def create_gcp_connection(gcp_connection_config):
     extra_field = {
         "extra__google_cloud_platform__scope": gcp_connection_config.scope,
         "extra__google_cloud_platform__project": gcp_connection_config.project,
-        "extra__google_cloud_platform__key_path": gcp_connection_config.keypath
+        "extra__google_cloud_platform__key_path": gcp_connection_config.bucket_keypath
     }
 
     session = settings.Session()

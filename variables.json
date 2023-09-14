@@ -1,0 +1,13 @@
+{"gcp_connection":{
+    "conn_id": "google_cloud_default",
+    "conn_type": "google_cloud_platform",
+    "scope": "https://www.googleapis.com/auth/cloud-platform",
+    "project": "DataTempestHomework",
+    "bucket_keypath": "/opt/airflow/dags/serviceaccount/datatempesthomework-b50a509f566a.json",
+    "bq_keypath": "/opt/airflow/dags/serviceaccount/datatempesthomework-392e6f819025.json"
+    },
+"upload_to_gcs":{
+    "dir_name": "/opt/airflow/data_source/",
+    "bucket_name": "homeworkbuckett"
+}
+}
