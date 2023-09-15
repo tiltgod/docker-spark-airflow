@@ -1,6 +1,6 @@
 lxml==4.9.3
 python-decouple==3.8
 pyspark==3.3.0
-apache-airflow-providers-apache-spark==4.1.4
+apache-airflow-providers-apache-spark
 requests==2.31.0
-pandas==2.1.0
+pandas
