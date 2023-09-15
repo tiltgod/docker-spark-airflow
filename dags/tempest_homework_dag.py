@@ -46,24 +46,6 @@ with DAG(
         op_kwargs={'credential_info': gcp_bucket_credential, 'bucket_name':gcp_bucket_name, 'local_dir': local_dir},
     )
 
-    # activateGCP = PythonOperator(
-    #     task_id='add_gcp_connection_python',
-    #     python_callable=create_gcp_connection,
-    #     op_kwargs={'gcp_connection_config': gcp_connection_config},
-    # )
-
-    # add_date_to_files = PythonOperator(
-    #     task_id='add_date_to_files',
-    #     python_callable=fu.add_date_to_files,
-    #     op_kwargs={'source_path': local_dir}
-    # )
-
-    # upload_file = LocalFilesystemToGCSOperator(
-    #     task_id="upload_file",
-    #     src=upload_config.dir_name + "/*",
-    #     dst="",
-    #     bucket="homeworkbuckett",
-    # )
 
     # spark_transform = SparkSubmitOperator(
 	# 	application = "/opt/airflow/dags/spark_transform_script.py",
@@ -73,4 +55,4 @@ with DAG(
 	# )
 
     # task dependencies
-    # activateGCP >> [add_date_to_files, upload_file] >> [spark_transform]
+    # upload_file >> spark_transform
