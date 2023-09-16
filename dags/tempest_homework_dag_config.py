@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from gcp_connection_setting import GCPConnectionSettings
-from to_gcs_setting import ToGCSSetting
+from data_class.gcp_connection_setting import GCPConnectionSettings
+from data_class.to_gcs_setting import ToGCSSetting
 from airflow.models import Variable
 
 connection_config = Variable.get("gcp_connection", deserialize_json=True)

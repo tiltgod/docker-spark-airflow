@@ -40,7 +40,7 @@ class GCSWrapper():
             print(f"Could not get bucket '{bucket_name}'")
             raise
 
-    def get_blob_list(self, bucket_name,prefix):
+    def get_blob_list(self, bucket_name, prefix):
         blob_list = []
         try:
             bucket = self.get_bucket(bucket_name)
