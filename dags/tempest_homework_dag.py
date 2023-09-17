@@ -3,11 +3,8 @@ from datetime import datetime
 from airflow import DAG
 from tempest_homework_dag_config import default_config
 from airflow.operators.python import PythonOperator
-# from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
-# from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
-# from create_gcp_connection import create_gcp_connection
+from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from application.local_to_gcs import local_to_gcs
-# import file_utils as fu
 import json
 
 # global variables
@@ -22,13 +19,13 @@ gcp_bq_credential_path = gcp_connection_config.bq_keypath
 with open(gcp_bucket_credential_path) as json_file:
     data = json.load(json_file)
     gcp_bucket_credential = data
-    #gcp_bucket_credential = str(data)
+    str_gcp_bucket_credential = str(data)
 
 with open(gcp_bq_credential_path) as json_file_1:
     data = json.load(json_file_1)
-    gcp_bq_credential = str(data)
+    str_gcp_bq_credential = str(data)
 
-spark_args = [gcp_bucket_name, gcp_bucket_credential, gcp_bq_credential]
+spark_args = [gcp_bucket_name, str_gcp_bucket_credential, str_gcp_bq_credential]
 
 
 with DAG(
@@ -40,19 +37,19 @@ with DAG(
     
 ) as dag:
 
-    upload_file = PythonOperator(
-        task_id="upload_file",
-        python_callable=local_to_gcs,
-        op_kwargs={'credential_info': gcp_bucket_credential, 'bucket_name':gcp_bucket_name, 'local_dir': local_dir},
-    )
+    # upload_file = PythonOperator(
+    #     task_id="upload_file",
+    #     python_callable=local_to_gcs,
+    #     op_kwargs={'credential_info': gcp_bucket_credential, 'bucket_name':gcp_bucket_name, 'local_dir': local_dir},
+    # )
 
 
-    # spark_transform = SparkSubmitOperator(
-	# 	application = "/opt/airflow/dags/spark_transform_script.py",
-	# 	conn_id= 'spark', 
-	# 	task_id='spark_submit_task',
-    #     application_args=spark_args
-	# )
+    spark_transform = SparkSubmitOperator(
+		application = "/opt/airflow/dags/spark_transform_script.py",
+		conn_id= 'spark', 
+		task_id='spark_submit_task',
+        application_args=spark_args
+	)
 
     # task dependencies
     # upload_file >> spark_transform

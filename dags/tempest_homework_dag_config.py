@@ -20,6 +20,7 @@ default_config = DefaultSampleDag(
         bucket_keypath = connection_config["bucket_keypath"],
         bq_keypath = connection_config["bq_keypath"]
     ),
+    
     to_gcs_setting = ToGCSSetting(
         dir_name = upload_config["dir_name"],
         bucket_name = upload_config["bucket_name"]

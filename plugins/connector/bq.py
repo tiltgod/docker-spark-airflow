@@ -1,5 +1,5 @@
 from google.cloud import bigquery, exceptions
-import pandas as pd
+from typing import Any, Dict, List
 
 class BigQueryWrapper():
 
@@ -45,14 +45,28 @@ class BigQueryWrapper():
         return f"{project_id}.{dataset_id}.{table_id}"
     
     @staticmethod
-    def create_loadjob_config(schema_dict=None, write_mode='empty', source_format='CSV'):
+    def create_loadjob_config(schema_dict=None, source_format='CSV'):
         
         job_config = bigquery.LoadJobConfig(
             source_format=source_format,
-            write_disposition=BigQueryWrapper._get_write_mode(write_mode),
         )
         if schema_dict is not None:
             job_config.schema=BigQueryWrapper._convert_schema(schema_dict)
         else:
             job_config.autodetect=True
         return job_config
+
+    @staticmethod
+    def _convert_schema(schema_dict: List[Dict[str, Any]]) -> List[bigquery.SchemaField]:
+        """list of dict to List[bigquery.SchemaField]"""
+        schema = []
+        for sch in schema_dict:
+            try:
+                api_repr_schema = BigQueryWrapper._transform_schema_dict_to_api_repr_format(schema=sch.copy())
+                tmp_schema = bigquery.SchemaField.from_api_repr(api_repr_schema)
+            except KeyError:
+                print("Schema must contain keys [name, field_type]")
+                raise
+            schema.append(tmp_schema)
+        return schema
+        

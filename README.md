@@ -11,3 +11,9 @@ bash building.sh
 ```
 bash start.sh
 ```
+
+## Bigquery
+```
+dataset = "homework_dataset"
+teable = "homework_table"
+```
